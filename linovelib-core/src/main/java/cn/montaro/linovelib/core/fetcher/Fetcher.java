@@ -1,0 +1,156 @@
+package cn.montaro.linovelib.core.fetcher;
+
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpUtil;
+import cn.montaro.linovelib.core.constant.Constant;
+import cn.montaro.linovelib.core.model.Catalog;
+import cn.montaro.linovelib.core.model.Chapter;
+import cn.montaro.linovelib.core.model.Novel;
+import cn.montaro.linovelib.core.model.Volume;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+import java.util.ArrayList;
+
+public class Fetcher {
+
+    /**
+     * 获取小说基本信息
+     *
+     * @param id
+     * @return
+     */
+    public static Novel fetchNovel(Long id) {
+        String novelUrl = getNovelUrl(id);
+
+        Document doc = Jsoup.parse(HttpUtil.get(novelUrl));
+
+        Novel novel = new Novel();
+        novel.setId(id)
+                .setNovelName(doc.selectFirst(".book-name").text())
+                .setAuthor(doc.selectFirst(".au-name>a").text())
+                .setNovelDesc(doc.selectFirst(".book-dec>p").html())
+                .setLabels(new ArrayList<>());
+
+        Elements labelElements = doc.select(".book-label a");
+        labelElements.forEach(element -> novel.getLabels().add(element.text()));
+        return novel;
+    }
+
+    /**
+     * 获取小说目录信息
+     *
+     * @param id
+     * @return
+     */
+    public static Catalog fetchCatalog(Long id) {
+        String novelCatalogUrl = getNovelCatalogUrl(id);
+        Document doc = Jsoup.parse(HttpUtil.get(novelCatalogUrl));
+
+        Catalog catalog = new Catalog();
+
+        Elements elements = doc.select(".chapter-list > *");
+        boolean first = true;
+        Chapter beforeChapter = null;
+
+        Volume volume = new Volume();
+        for (Element element : elements) {
+            // 卷 div.class=volume
+            if (element.classNames().contains("volume")) {
+                if (!first) {
+                    catalog.addVolume(volume);
+                }
+                first = false;
+                volume = new Volume();
+                volume.setVolumeName(element.text());
+
+            }
+            // 章节 li.class=col-4
+            if (element.classNames().contains("col-4")) {
+                Elements a = element.select("a");
+                String chapterUrl = a.attr(Constant.LINK_ATTR_HREF);
+
+                chapterUrl = (StrUtil.isEmpty(chapterUrl) || StrUtil.containsIgnoreCase(chapterUrl, "javascript")) ? null : Constant.DOMAIN + chapterUrl;
+
+                Chapter chapter = new Chapter()
+                        .setChapterName(a.text())
+                        .setChapterUrl(chapterUrl);
+                if (beforeChapter != null && StrUtil.isEmpty(beforeChapter.getChapterUrl()) && StrUtil.isNotEmpty(chapterUrl)) {
+                    // 如果上一章url为空且本章url不为空 则从本章获取
+                    String prevChapterUrl = getPrevChapterUrl(chapterUrl);
+                    beforeChapter.setChapterUrl(prevChapterUrl);
+                }
+                if (beforeChapter != null && StrUtil.isNotEmpty(beforeChapter.getChapterUrl()) && StrUtil.isEmpty(chapter.getChapterUrl())) {
+                    // 从本章url为空且上一章不url为空 则从上一章获取
+                    String nextChapterUrl = getNextChapterUrl(beforeChapter.getChapterUrl());
+                    chapter.setChapterUrl(nextChapterUrl);
+                }
+                volume.addChapter(chapter);
+                beforeChapter = chapter;
+            }
+        }
+
+        // 针对部分章节获取不到url的情况，遍历出没有url的章节，通过上一章或下一章页面中的html获取到
+        return catalog;
+    }
+
+    public static String fetchChapterContent(String chapterUrl) {
+        // TODO: 完成获取章节内容的功能
+        return null;
+    }
+
+    /**
+     * 获取小说主页url
+     * 形如：<a>https://www.linovelib.com/novel/1.html</a>
+     *
+     * @param id
+     * @return
+     */
+    private static String getNovelUrl(Long id) {
+        return StrUtil.format("{}/novel/{}.html", Constant.DOMAIN, id);
+    }
+
+    /**
+     * 获取小说目录url
+     * 形如：<a>https://www.linovelib.com/novel/1/catalog</a>
+     *
+     * @param id
+     * @return
+     */
+    private static String getNovelCatalogUrl(Long id) {
+        return StrUtil.format("{}/novel/{}/catalog", Constant.DOMAIN, id);
+    }
+
+    private static String getPrevChapterUrl(String chapterUrl) {
+        Document doc = Jsoup.parse(HttpUtil.get(chapterUrl));
+        Element prev = doc.selectFirst(".mlfy_page>a");
+        if (prev == null) {
+            return null;
+        }
+        if (StrUtil.contains(prev.text(), Constant.PREV_CHAPTER)) {
+            return Constant.DOMAIN + prev.attr(Constant.LINK_ATTR_HREF);
+        }
+        return null;
+    }
+
+    private static String getNextChapterUrl(String chapterUrl) {
+        int maxTimes = 20;
+        for (int i = 0; i < maxTimes; i++) {
+            Document doc = Jsoup.parse(HttpUtil.get(chapterUrl));
+            Element next = doc.selectFirst(".mlfy_page>a:last-child");
+            if (next == null) {
+                return null;
+            }
+            String nextUrl = next.attr(Constant.LINK_ATTR_HREF);
+            if (StrUtil.contains(next.text(), Constant.NEXT_CHAPTER)) {
+                chapterUrl = Constant.DOMAIN + nextUrl;
+            } else {
+                return Constant.DOMAIN + nextUrl;
+            }
+        }
+        return null;
+    }
+
+}
