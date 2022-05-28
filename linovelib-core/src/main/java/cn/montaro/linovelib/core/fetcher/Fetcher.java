@@ -22,10 +22,13 @@ public class Fetcher {
      * @param id
      * @return
      */
-    public static Novel fetchNovel(Long id) {
+    public static Novel fetchNovel(long id) {
         String novelUrl = getNovelUrl(id);
 
         Document doc = Jsoup.parse(HttpUtil.get(novelUrl));
+        if (isError(doc)) {
+            return null;
+        }
 
         Novel novel = new Novel();
         novel.setId(id)
@@ -45,9 +48,13 @@ public class Fetcher {
      * @param id
      * @return
      */
-    public static Catalog fetchCatalog(Long id) {
+    public static Catalog fetchCatalog(long id) {
         String novelCatalogUrl = getNovelCatalogUrl(id);
+
         Document doc = Jsoup.parse(HttpUtil.get(novelCatalogUrl));
+        if (isError(doc)) {
+            return null;
+        }
 
         Catalog catalog = new Catalog();
 
@@ -96,6 +103,14 @@ public class Fetcher {
         return catalog;
     }
 
+    private static boolean isError(Document doc) {
+        Element title = doc.head().selectFirst("title");
+        if (title == null || StrUtil.contains(title.text(), "错误")) {
+            return true;
+        }
+        return false;
+    }
+
     public static String fetchChapterContent(String chapterUrl) {
         // TODO: 完成获取章节内容的功能
         return null;
@@ -108,7 +123,7 @@ public class Fetcher {
      * @param id
      * @return
      */
-    private static String getNovelUrl(Long id) {
+    private static String getNovelUrl(long id) {
         return StrUtil.format("{}/novel/{}.html", Constant.DOMAIN, id);
     }
 
@@ -119,7 +134,7 @@ public class Fetcher {
      * @param id
      * @return
      */
-    private static String getNovelCatalogUrl(Long id) {
+    private static String getNovelCatalogUrl(long id) {
         return StrUtil.format("{}/novel/{}/catalog", Constant.DOMAIN, id);
     }
 
