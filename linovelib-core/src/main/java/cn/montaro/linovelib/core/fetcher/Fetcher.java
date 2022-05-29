@@ -7,6 +7,7 @@ import cn.montaro.linovelib.core.model.Catalog;
 import cn.montaro.linovelib.core.model.Chapter;
 import cn.montaro.linovelib.core.model.Novel;
 import cn.montaro.linovelib.core.model.Volume;
+import com.sun.org.apache.bcel.internal.Const;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -112,8 +113,25 @@ public class Fetcher {
     }
 
     public static String fetchChapterContent(String chapterUrl) {
-        // TODO: 完成获取章节内容的功能
-        return null;
+        Document doc = new Document("");
+        boolean isEnd;
+        do {
+            Document page = Jsoup.parse(HttpUtil.get(chapterUrl));
+            Element contentElement = page.selectFirst("#TextContent");
+            if (contentElement == null) {
+                return doc.html();
+            }
+            contentElement.select(".tp").remove();
+            contentElement.select(".bd").remove();
+            doc.append(contentElement.html());
+            Element next = page.selectFirst(".mlfy_page>a:last-child");
+            if (next == null) {
+                return null;
+            }
+            isEnd = StrUtil.containsIgnoreCase(next.text(), Constant.NEXT_CHAPTER);
+            chapterUrl = Constant.DOMAIN + next.attr(Constant.LINK_ATTR_HREF);
+        } while (!isEnd);
+        return doc.html();
     }
 
     /**
@@ -144,7 +162,7 @@ public class Fetcher {
         if (prev == null) {
             return null;
         }
-        if (StrUtil.contains(prev.text(), Constant.PREV_CHAPTER)) {
+        if (StrUtil.containsIgnoreCase(prev.text(), Constant.PREV_CHAPTER)) {
             return Constant.DOMAIN + prev.attr(Constant.LINK_ATTR_HREF);
         }
         return null;
@@ -159,10 +177,10 @@ public class Fetcher {
                 return null;
             }
             String nextUrl = next.attr(Constant.LINK_ATTR_HREF);
-            if (StrUtil.contains(next.text(), Constant.NEXT_CHAPTER)) {
-                chapterUrl = Constant.DOMAIN + nextUrl;
-            } else {
+            if (StrUtil.containsIgnoreCase(next.text(), Constant.NEXT_CHAPTER)) {
                 return Constant.DOMAIN + nextUrl;
+            } else {
+                chapterUrl = Constant.DOMAIN + nextUrl;
             }
         }
         return null;
