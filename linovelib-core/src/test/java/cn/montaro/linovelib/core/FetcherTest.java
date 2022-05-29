@@ -69,4 +69,12 @@ public class FetcherTest {
 //            System.out.println(StrUtil.format("ID = {} IS PASSED", id));
 //        }
 //    }
+
+    @Test
+    public void testFetchChapterContent(){
+        String chapterUrl = "https://www.linovelib.com/novel/2704/127910.html";
+        String s = Fetcher.fetchChapterContent(chapterUrl);
+        System.out.println(s);
+    }
+
 }
