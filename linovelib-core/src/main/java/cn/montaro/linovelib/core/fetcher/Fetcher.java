@@ -1,13 +1,12 @@
 package cn.montaro.linovelib.core.fetcher;
 
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpUtil;
+import cn.montaro.linovelib.common.util.HttpRetryUtil;
 import cn.montaro.linovelib.core.constant.Constant;
 import cn.montaro.linovelib.core.model.Catalog;
 import cn.montaro.linovelib.core.model.Chapter;
 import cn.montaro.linovelib.core.model.Novel;
 import cn.montaro.linovelib.core.model.Volume;
-import com.sun.org.apache.bcel.internal.Const;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -26,7 +25,7 @@ public class Fetcher {
     public static Novel fetchNovel(long id) {
         String novelUrl = getNovelUrl(id);
 
-        Document doc = Jsoup.parse(HttpUtil.get(novelUrl));
+        Document doc = Jsoup.parse(HttpRetryUtil.get(novelUrl));
         if (isError(doc)) {
             return null;
         }
@@ -52,7 +51,7 @@ public class Fetcher {
     public static Catalog fetchCatalog(long id) {
         String novelCatalogUrl = getNovelCatalogUrl(id);
 
-        Document doc = Jsoup.parse(HttpUtil.get(novelCatalogUrl));
+        Document doc = Jsoup.parse(HttpRetryUtil.get(novelCatalogUrl));
         if (isError(doc)) {
             return null;
         }
@@ -116,7 +115,7 @@ public class Fetcher {
         Document doc = new Document("");
         boolean isEnd;
         do {
-            Document page = Jsoup.parse(HttpUtil.get(chapterUrl));
+            Document page = Jsoup.parse(HttpRetryUtil.get(chapterUrl));
             Element contentElement = page.selectFirst("#TextContent");
             if (contentElement == null) {
                 return doc.html();
@@ -126,7 +125,7 @@ public class Fetcher {
             doc.append(contentElement.html());
             Element next = page.selectFirst(".mlfy_page>a:last-child");
             if (next == null) {
-                return null;
+                return "";
             }
             isEnd = StrUtil.containsIgnoreCase(next.text(), Constant.NEXT_CHAPTER);
             chapterUrl = Constant.DOMAIN + next.attr(Constant.LINK_ATTR_HREF);
@@ -157,7 +156,7 @@ public class Fetcher {
     }
 
     private static String getPrevChapterUrl(String chapterUrl) {
-        Document doc = Jsoup.parse(HttpUtil.get(chapterUrl));
+        Document doc = Jsoup.parse(HttpRetryUtil.get(chapterUrl));
         Element prev = doc.selectFirst(".mlfy_page>a");
         if (prev == null) {
             return null;
@@ -171,7 +170,7 @@ public class Fetcher {
     private static String getNextChapterUrl(String chapterUrl) {
         int maxTimes = 20;
         for (int i = 0; i < maxTimes; i++) {
-            Document doc = Jsoup.parse(HttpUtil.get(chapterUrl));
+            Document doc = Jsoup.parse(HttpRetryUtil.get(chapterUrl));
             Element next = doc.selectFirst(".mlfy_page>a:last-child");
             if (next == null) {
                 return null;
