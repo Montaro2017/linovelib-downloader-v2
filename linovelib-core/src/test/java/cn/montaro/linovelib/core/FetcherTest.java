@@ -14,7 +14,7 @@ public class FetcherTest {
     @Test
     public void testFetchNovel() {
         // 96
-        long id = 0;
+        long id = 96;
         Novel novel = Fetcher.fetchNovel(id);
         assert novel != null;
         System.out.println("novel = " + novel);
