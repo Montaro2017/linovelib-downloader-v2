@@ -3,6 +3,7 @@ package cn.montaro.linovelib.core.fetcher;
 import cn.hutool.core.util.StrUtil;
 import cn.montaro.linovelib.common.util.HttpRetryUtil;
 import cn.montaro.linovelib.core.constant.Constant;
+import cn.montaro.linovelib.core.constant.TextMapConstant;
 import cn.montaro.linovelib.core.model.Catalog;
 import cn.montaro.linovelib.core.model.Chapter;
 import cn.montaro.linovelib.core.model.Novel;
@@ -130,7 +131,9 @@ public class Fetcher {
             isEnd = StrUtil.containsIgnoreCase(next.text(), Constant.NEXT_CHAPTER);
             chapterUrl = Constant.DOMAIN + next.attr(Constant.LINK_ATTR_HREF);
         } while (!isEnd);
-        return doc.html();
+        String content = doc.html();
+        content = replaceWords(content);
+        return content;
     }
 
     /**
@@ -183,6 +186,28 @@ public class Fetcher {
             }
         }
         return null;
+    }
+
+    /**
+     * 替换处理字体加密
+     *
+     * @param content
+     * @return
+     */
+    private static String replaceWords(String content) {
+        if (content == null) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder(content);
+        int length = content.length();
+        for (int i = 0; i < length; i++) {
+            char c = sb.charAt(i);
+            Character replacement = TextMapConstant.TEXT_MAP.get(c);
+            if (replacement != null) {
+                sb.setCharAt(i, replacement);
+            }
+        }
+        return sb.toString();
     }
 
 }
