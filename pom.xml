@@ -11,11 +11,13 @@
     <modules>
         <module>linovelib-commom</module>
         <module>linovelib-core</module>
+        <module>linovelib-epub</module>
     </modules>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
+        <app.version>1.0-SNAPSHOT</app.version>
 
         <hutool.version>5.8.1</hutool.version>
         <lombok.version>1.18.24</lombok.version>
@@ -29,13 +31,19 @@
             <dependency>
                 <groupId>cn.montaro</groupId>
                 <artifactId>linovelib-commom</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>${app.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>cn.montaro</groupId>
                 <artifactId>linovelib-core</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>${app.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>cn.montaro</groupId>
+                <artifactId>linovelib-epub</artifactId>
+                <version>${app.version}</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/cn.hutool/hutool-all -->

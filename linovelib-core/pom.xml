@@ -23,6 +23,11 @@
             <artifactId>linovelib-commom</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>cn.montaro</groupId>
+            <artifactId>linovelib-epub</artifactId>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/cn.hutool/hutool-all -->
         <dependency>
             <groupId>cn.hutool</groupId>
