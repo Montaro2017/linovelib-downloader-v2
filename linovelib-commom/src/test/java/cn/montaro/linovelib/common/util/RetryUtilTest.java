@@ -1,6 +1,7 @@
 package cn.montaro.linovelib.common.util;
 
 import cn.hutool.http.HttpUtil;
+import cn.montaro.linovelib.common.model.SimpleImageInfo;
 import org.junit.jupiter.api.Test;
 
 public class RetryUtilTest {
@@ -14,4 +15,5 @@ public class RetryUtilTest {
         System.out.println("content = " + content);
         System.out.println("(after-before) = " + (after - before));
     }
+
 }

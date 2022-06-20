@@ -1,10 +1,15 @@
 package cn.montaro.linovelib.core;
 
 import cn.hutool.core.util.StrUtil;
+import cn.montaro.linovelib.common.model.SimpleImageInfo;
+import cn.montaro.linovelib.common.util.FastImageUtil;
+import cn.montaro.linovelib.common.util.HttpRetryUtil;
 import cn.montaro.linovelib.core.fetcher.Fetcher;
 import cn.montaro.linovelib.core.model.Catalog;
 import cn.montaro.linovelib.core.model.Chapter;
 import cn.montaro.linovelib.core.model.Novel;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -69,12 +74,26 @@ public class FetcherTest {
 //            System.out.println(StrUtil.format("ID = {} IS PASSED", id));
 //        }
 //    }
-
     @Test
-    public void testFetchChapterContent(){
-        String chapterUrl = "https://www.linovelib.com/novel/2704/127910.html";
-        String s = Fetcher.fetchChapterContent(chapterUrl);
-        System.out.println(s);
+    public void testFetchChapterContent() {
+//        String chapterUrl = "https://www.linovelib.com/novel/2704/127910.html";
+        String chapterUrl = "https://www.linovelib.com/novel/8/1843.html";
+        Document doc = Fetcher.fetchChapterContent(chapterUrl);
+        String html = doc.html();
+//        System.out.println(html);
+
+        Element img = doc.select("img").first();
+        if (img != null) {
+            String src = img.attr("src");
+            if (StrUtil.startWith(src, "//")) {
+                src = "https:" + src;
+            }
+            System.out.println("src = " + src);
+            byte[] imageBytes = HttpRetryUtil.getBytes(src);
+            SimpleImageInfo imageInfo = FastImageUtil.getImageInfo(imageBytes);
+            System.out.println("imageInfo = " + imageInfo);
+        }
+
     }
 
 }

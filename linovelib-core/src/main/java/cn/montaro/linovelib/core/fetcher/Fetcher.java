@@ -11,6 +11,7 @@ import cn.montaro.linovelib.core.model.Volume;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
@@ -112,28 +113,28 @@ public class Fetcher {
         return false;
     }
 
-    public static String fetchChapterContent(String chapterUrl) {
+    public static Document fetchChapterContent(String chapterUrl) {
         Document doc = new Document("");
         boolean isEnd;
         do {
             Document page = Jsoup.parse(HttpRetryUtil.get(chapterUrl));
             Element contentElement = page.selectFirst("#TextContent");
             if (contentElement == null) {
-                return doc.html();
+                return doc;
             }
             contentElement.select(".tp").remove();
             contentElement.select(".bd").remove();
+            // TODO: 处理文字断行问题(1行文字被断成两个段落)
             doc.append(contentElement.html());
             Element next = page.selectFirst(".mlfy_page>a:last-child");
             if (next == null) {
-                return "";
+                return doc;
             }
             isEnd = StrUtil.containsIgnoreCase(next.text(), Constant.NEXT_CHAPTER);
             chapterUrl = Constant.DOMAIN + next.attr(Constant.LINK_ATTR_HREF);
         } while (!isEnd);
-        String content = doc.html();
-        content = replaceWords(content);
-        return content;
+        doc = handleFontSecret(doc);
+        return doc;
     }
 
     /**
@@ -189,25 +190,31 @@ public class Fetcher {
     }
 
     /**
-     * 替换处理字体加密
+     * 处理字体加密
      *
-     * @param content
+     * @param doc
      * @return
      */
-    private static String replaceWords(String content) {
-        if (content == null) {
+    private static Document handleFontSecret(Document doc) {
+        if (doc == null) {
             return null;
         }
-        StringBuilder sb = new StringBuilder(content);
-        int length = content.length();
-        for (int i = 0; i < length; i++) {
-            char c = sb.charAt(i);
-            Character replacement = TextMapConstant.TEXT_MAP.get(c);
-            if (replacement != null) {
-                sb.setCharAt(i, replacement);
+        doc.forEachNode((node) -> {
+            if (node instanceof TextNode) {
+                TextNode textNode = (TextNode) node;
+                StringBuilder sb = new StringBuilder(textNode.text());
+                int length = sb.length();
+                for (int i = 0; i < length; i++) {
+                    char c = sb.charAt(i);
+                    Character replacement = TextMapConstant.TEXT_MAP.get(c);
+                    if (replacement != null) {
+                        sb.setCharAt(i, replacement);
+                    }
+                }
+                textNode.text(sb.toString());
             }
-        }
-        return sb.toString();
+        });
+        return doc;
     }
 
 }

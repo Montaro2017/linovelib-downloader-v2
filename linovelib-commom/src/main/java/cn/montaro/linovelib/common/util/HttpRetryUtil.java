@@ -8,4 +8,8 @@ public class HttpRetryUtil {
         return RetryUtil.retry(() -> HttpUtil.get(url));
     }
 
+    public static byte[] getBytes(String url) {
+        return RetryUtil.retry(() -> HttpUtil.downloadBytes(url));
+    }
+
 }
