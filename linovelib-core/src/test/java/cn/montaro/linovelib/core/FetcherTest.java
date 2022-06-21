@@ -77,23 +77,10 @@ public class FetcherTest {
     @Test
     public void testFetchChapterContent() {
 //        String chapterUrl = "https://www.linovelib.com/novel/2704/127910.html";
-        String chapterUrl = "https://www.linovelib.com/novel/8/1843.html";
+        String chapterUrl = "https://www.linovelib.com/novel/2/426.html";
         Document doc = Fetcher.fetchChapterContent(chapterUrl);
         String html = doc.html();
-//        System.out.println(html);
-
-        Element img = doc.select("img").first();
-        if (img != null) {
-            String src = img.attr("src");
-            if (StrUtil.startWith(src, "//")) {
-                src = "https:" + src;
-            }
-            System.out.println("src = " + src);
-            byte[] imageBytes = HttpRetryUtil.getBytes(src);
-            SimpleImageInfo imageInfo = FastImageUtil.getImageInfo(imageBytes);
-            System.out.println("imageInfo = " + imageInfo);
-        }
-
+        System.out.println(html);
     }
 
 }

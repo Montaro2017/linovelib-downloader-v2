@@ -21,14 +21,14 @@ public class Fetcher {
     /**
      * 获取小说基本信息
      *
-     * @param id
+     * @param id 小说id
      * @return
      */
     public static Novel fetchNovel(long id) {
         String novelUrl = getNovelUrl(id);
 
         Document doc = Jsoup.parse(HttpRetryUtil.get(novelUrl));
-        if (isError(doc)) {
+        if (isErrorPage(doc)) {
             return null;
         }
 
@@ -47,14 +47,14 @@ public class Fetcher {
     /**
      * 获取小说目录信息
      *
-     * @param id
+     * @param id 小说id
      * @return
      */
     public static Catalog fetchCatalog(long id) {
         String novelCatalogUrl = getNovelCatalogUrl(id);
 
         Document doc = Jsoup.parse(HttpRetryUtil.get(novelCatalogUrl));
-        if (isError(doc)) {
+        if (isErrorPage(doc)) {
             return null;
         }
 
@@ -105,7 +105,13 @@ public class Fetcher {
         return catalog;
     }
 
-    private static boolean isError(Document doc) {
+    /**
+     * 当前是否是错误页面
+     *
+     * @param doc 页面文档
+     * @return
+     */
+    private static boolean isErrorPage(Document doc) {
         Element title = doc.head().selectFirst("title");
         if (title == null || StrUtil.contains(title.text(), "错误")) {
             return true;
@@ -113,27 +119,45 @@ public class Fetcher {
         return false;
     }
 
+    /**
+     * 获取章节内容文档
+     *
+     * @param chapterUrl
+     * @return
+     */
     public static Document fetchChapterContent(String chapterUrl) {
         Document doc = new Document("");
+        Element lastParagraph = null;
         boolean isEnd;
         do {
             Document page = Jsoup.parse(HttpRetryUtil.get(chapterUrl));
-            Element contentElement = page.selectFirst("#TextContent");
-            if (contentElement == null) {
+            Element currentDocEl = page.selectFirst("#TextContent");
+            if (currentDocEl == null) {
                 return doc;
             }
-            contentElement.select(".tp").remove();
-            contentElement.select(".bd").remove();
-            // TODO: 处理文字断行问题(1行文字被断成两个段落)
-            doc.append(contentElement.html());
+            currentDocEl.select(".tp").remove();
+            currentDocEl.select(".bd").remove();
+            currentDocEl = handleFontSecret(currentDocEl);
+            if (lastParagraph != null && !isParagraphEnds(lastParagraph)) {
+                // 处理断行问题 文字拼接成一个段落
+                String text = lastParagraph.text();
+                Element firstParagraph = currentDocEl.select("p").first();
+                if (firstParagraph != null) {
+                    text = text + firstParagraph.text();
+                    firstParagraph.remove();
+                }
+                lastParagraph.text(text);
+            }
+            // 获取最后一个段落 要在appendChildren之前 否则获取到为null
+            lastParagraph = currentDocEl.select("p").last();
+            doc.appendChildren(currentDocEl.children());
             Element next = page.selectFirst(".mlfy_page>a:last-child");
             if (next == null) {
                 return doc;
             }
-            isEnd = StrUtil.containsIgnoreCase(next.text(), Constant.NEXT_CHAPTER);
+            isEnd = StrUtil.containsIgnoreCase(next.text(), Constant.NEXT_CHAPTER) || StrUtil.containsIgnoreCase(next.text(), Constant.RETURN_CATALOG);
             chapterUrl = Constant.DOMAIN + next.attr(Constant.LINK_ATTR_HREF);
         } while (!isEnd);
-        doc = handleFontSecret(doc);
         return doc;
     }
 
@@ -141,7 +165,7 @@ public class Fetcher {
      * 获取小说主页url
      * 形如：<a>https://www.linovelib.com/novel/1.html</a>
      *
-     * @param id
+     * @param id 小说数字id
      * @return
      */
     private static String getNovelUrl(long id) {
@@ -159,6 +183,12 @@ public class Fetcher {
         return StrUtil.format("{}/novel/{}/catalog", Constant.DOMAIN, id);
     }
 
+    /**
+     * 获得上一章节的url
+     *
+     * @param chapterUrl 当前章节url
+     * @return
+     */
     private static String getPrevChapterUrl(String chapterUrl) {
         Document doc = Jsoup.parse(HttpRetryUtil.get(chapterUrl));
         Element prev = doc.selectFirst(".mlfy_page>a");
@@ -171,6 +201,12 @@ public class Fetcher {
         return null;
     }
 
+    /**
+     * 获得下一章节的url
+     *
+     * @param chapterUrl 当前章节url
+     * @return
+     */
     private static String getNextChapterUrl(String chapterUrl) {
         int maxTimes = 20;
         for (int i = 0; i < maxTimes; i++) {
@@ -192,14 +228,14 @@ public class Fetcher {
     /**
      * 处理字体加密
      *
-     * @param doc
+     * @param el 文档
      * @return
      */
-    private static Document handleFontSecret(Document doc) {
-        if (doc == null) {
+    private static Element handleFontSecret(Element el) {
+        if (el == null) {
             return null;
         }
-        doc.forEachNode((node) -> {
+        el.forEachNode((node) -> {
             if (node instanceof TextNode) {
                 TextNode textNode = (TextNode) node;
                 StringBuilder sb = new StringBuilder(textNode.text());
@@ -214,7 +250,34 @@ public class Fetcher {
                 textNode.text(sb.toString());
             }
         });
-        return doc;
+        return el;
+    }
+
+    /**
+     * 判断当前段落是否结束
+     *
+     * @param lastParagraph 当前页最后一个段落
+     * @return 段落是否结束
+     */
+    private static boolean isParagraphEnds(Element lastParagraph) {
+        if (lastParagraph == null) {
+            return true;
+        }
+        String lastParagraphContent = lastParagraph.text();
+        if (StrUtil.isEmpty(lastParagraphContent)) {
+            return true;
+        }
+        if (StrUtil.contains(lastParagraphContent, "「") && !StrUtil.contains(lastParagraphContent, "」")) {
+            return false;
+        }
+        // 判断段落最后一个字符是否是任意结束字符
+        char lastChar = lastParagraphContent.charAt(lastParagraphContent.length() - 1);
+        for (char endChar : Constant.END_CHARS) {
+            if (lastChar == endChar) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

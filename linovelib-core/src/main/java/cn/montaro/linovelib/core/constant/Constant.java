@@ -10,4 +10,8 @@ public class Constant {
 
     public static final String NEXT_CHAPTER = "下一章";
 
+    public static final String RETURN_CATALOG = "返回目录";
+
+    public static final char[] END_CHARS = new char[]{'.', '。', '!', '！', '?', '？', '」', '*', '）', ')', '>', '…', '─'};
+
 }
