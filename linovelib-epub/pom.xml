@@ -17,10 +17,25 @@
     </properties>
 
     <dependencies>
+
         <dependency>
             <groupId>cn.montaro</groupId>
             <artifactId>linovelib-commom</artifactId>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

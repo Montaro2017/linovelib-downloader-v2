@@ -10,15 +10,11 @@ import java.nio.charset.Charset;
 
 public abstract class EpubResource implements Resource {
 
-    private String name;
+    protected String nameInEpub;
 
-    public EpubResource(String name) {
-        this.name = name;
-    }
-    
     @Override
     public String getName() {
-        return this.name;
+        return this.nameInEpub;
     }
 
     @Override

@@ -38,6 +38,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
