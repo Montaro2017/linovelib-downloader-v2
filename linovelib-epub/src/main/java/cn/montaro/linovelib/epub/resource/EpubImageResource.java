@@ -8,8 +8,8 @@ public class EpubImageResource extends EpubResource {
 
     private byte[] imageBytes;
 
-    public EpubImageResource(String nameInEpub, byte[] imageBytes) {
-        this.nameInEpub = nameInEpub;
+    public EpubImageResource(String pathInEpub, byte[] imageBytes) {
+        super(pathInEpub);
         this.imageBytes = imageBytes;
     }
 

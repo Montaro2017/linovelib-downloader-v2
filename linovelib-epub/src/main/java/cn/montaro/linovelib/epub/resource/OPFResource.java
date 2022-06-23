@@ -2,8 +2,6 @@ package cn.montaro.linovelib.epub.resource;
 
 import cn.hutool.core.io.IoUtil;
 import cn.montaro.linovelib.epub.constant.EpubConstant;
-import cn.montaro.linovelib.epub.constant.MediaTypeConstant;
-import cn.montaro.linovelib.epub.constant.TextConstant;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -14,8 +12,6 @@ import java.nio.charset.StandardCharsets;
 
 public class OPFResource extends EpubResource {
 
-    private final String nameInEpub = EpubConstant.PATH_CONTENT_OPF;
-
     private Document doc = null;
 
     private Element idEl;
@@ -25,6 +21,7 @@ public class OPFResource extends EpubResource {
     private Element spineEl;
 
     private OPFResource(Document doc) {
+        super(EpubConstant.PATH_CONTENT_OPF);
         assert doc != null;
         this.doc = doc;
         this.idEl = doc.getElementsByTag("dc:identifier").first();
@@ -49,31 +46,25 @@ public class OPFResource extends EpubResource {
 
     public void setCover(String relativeImagePath) {
         if (this.coverEl == null) {
-            Element item = doc.createElement(TextConstant.ITEM);
-            item.attr(TextConstant.ID, TextConstant.COVER_IMAGE);
-            item.attr(TextConstant.MEDIA_TYPE, MediaTypeConstant.IMAGE_JPEG);
-            item.empty();
+            Element item = doc.createElement("item");
+            item.attr("id", "cover-image");
+            item.attr("media-type", "image/jpeg");
             this.manifestEl.appendChild(item);
             this.coverEl = item;
         }
-        this.coverEl.attr(TextConstant.HREF, relativeImagePath);
+        this.coverEl.attr("href", relativeImagePath);
     }
 
     public void addChapter(String relativeChapterPath) {
-        Element item = doc.createElement(TextConstant.ITEM);
-        item.attr(TextConstant.ID, relativeChapterPath);
-        item.attr(TextConstant.HREF, relativeChapterPath);
-        item.attr(TextConstant.MEDIA_TYPE, MediaTypeConstant.XHTML_XML);
+        Element item = doc.createElement("item");
+        item.attr("id", relativeChapterPath);
+        item.attr("href", relativeChapterPath);
+        item.attr("media-type", "application/xhtml+xml");
         this.manifestEl.appendChild(item);
 
-        Element itemRef = doc.createElement(TextConstant.ITEM_REF);
-        itemRef.attr(TextConstant.ID_REF, relativeChapterPath);
+        Element itemRef = doc.createElement("itemref");
+        itemRef.attr("idref", relativeChapterPath);
         this.spineEl.appendChild(itemRef);
-    }
-
-    @Override
-    public String getName() {
-        return this.nameInEpub;
     }
 
     @Override

@@ -9,8 +9,8 @@ public class EpubTextResource extends EpubResource {
 
     private String content;
 
-    public EpubTextResource(String nameInEpub, String content) {
-        this.nameInEpub = nameInEpub;
+    public EpubTextResource(String pathInEpub, String content) {
+        super(pathInEpub);
         this.content = content;
     }
 

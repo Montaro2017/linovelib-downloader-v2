@@ -2,7 +2,6 @@ package cn.montaro.linovelib.epub.resource;
 
 import cn.hutool.core.io.IoUtil;
 import cn.montaro.linovelib.epub.constant.EpubConstant;
-import cn.montaro.linovelib.epub.constant.TextConstant;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -13,8 +12,6 @@ import java.nio.charset.StandardCharsets;
 
 public class NCXResource extends EpubResource {
 
-    private final String nameInEpub = EpubConstant.PATH_TOC_NCX;
-
     private Document doc;
 
     private Element idEl;
@@ -22,6 +19,7 @@ public class NCXResource extends EpubResource {
     private Element navMapEl;
 
     private NCXResource(Document doc) {
+        super(EpubConstant.PATH_TOC_NCX);
         assert doc != null;
         this.doc = doc;
         this.idEl = doc.select("meta[name='dtb:uid']").first();
@@ -35,6 +33,10 @@ public class NCXResource extends EpubResource {
         return new NCXResource(doc);
     }
 
+    public void setBookId(String id) {
+        this.idEl.attr("content", "urn:uuid:" + id);
+    }
+
     public void setTitle(String title) {
         this.titleEl.text(title);
     }
@@ -42,8 +44,8 @@ public class NCXResource extends EpubResource {
     public void addChapter(String chapterName, String relativeChapterPath) {
         int index = this.navMapEl.childNodeSize() + 1;
         Element navPoint = doc.createElement("navPoint");
-        navPoint.attr(TextConstant.ID, "navPoint-" + index);
-        navPoint.attr(TextConstant.PLAY_ORDER, String.valueOf(index));
+        navPoint.attr("id", "navPoint-" + index);
+        navPoint.attr("playOrder", String.valueOf(index));
 
         Element navLabel = doc.createElement("navLabel");
 
@@ -57,11 +59,6 @@ public class NCXResource extends EpubResource {
         navPoint.appendChild(navLabel);
         navPoint.appendChild(content);
         this.navMapEl.appendChild(navPoint);
-    }
-
-    @Override
-    public String getName() {
-        return this.nameInEpub;
     }
 
     @Override
