@@ -27,7 +27,9 @@ public class FastImageUtil {
         int width = -1;
         int height = -1;
         String mimeType = null;
-
+        if (is == null) {
+            return null;
+        }
         int c1 = is.read();
         int c2 = is.read();
         int c3 = is.read();
