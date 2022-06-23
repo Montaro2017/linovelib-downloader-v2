@@ -19,6 +19,7 @@ public class EpubChapterResource extends EpubResource {
     public EpubChapterResource(String pathInEpub, Document doc) {
         super(pathInEpub);
         this.doc = doc;
+        doc.outputSettings().prettyPrint(true);
     }
 
     @Override

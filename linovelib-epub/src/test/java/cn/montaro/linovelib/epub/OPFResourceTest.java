@@ -6,7 +6,6 @@ import cn.montaro.linovelib.epub.resource.OPFResource;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 public class OPFResourceTest {

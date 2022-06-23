@@ -126,7 +126,9 @@ public class Fetcher {
      * @return
      */
     public static Document fetchChapterContent(String chapterUrl) {
-        Document doc = new Document("");
+        // 避免缺失html、head和body标签以至于某些软件无法识别
+        Document doc = Jsoup.parse("");
+        Element body = doc.body();
         Element lastParagraph = null;
         boolean isEnd;
         do {
@@ -138,6 +140,8 @@ public class Fetcher {
             currentDocEl.select(".tp").remove();
             currentDocEl.select(".bd").remove();
             currentDocEl = handleFontSecret(currentDocEl);
+            // 删除img标签的外部标签以解决在某些软件上只能显示一张图的问题
+            currentDocEl.select(".divimage").unwrap();
             if (lastParagraph != null && !isParagraphEnds(lastParagraph)) {
                 // 处理断行问题 文字拼接成一个段落
                 String text = lastParagraph.text();
@@ -150,7 +154,7 @@ public class Fetcher {
             }
             // 获取最后一个段落 要在appendChildren之前 否则获取到为null
             lastParagraph = currentDocEl.select("p").last();
-            doc.appendChildren(currentDocEl.children());
+            body.appendChildren(currentDocEl.children());
             Element next = page.selectFirst(".mlfy_page>a:last-child");
             if (next == null) {
                 return doc;

@@ -41,7 +41,6 @@ public class MainTest {
         for (Chapter chapter : chapterList) {
             String chapterUrl = chapter.getChapterUrl();
             Document doc = Fetcher.fetchChapterContent(chapterUrl);
-            resolveImages(doc, packer);
             packer.addChapterResource(doc, chapter.getChapterName(), false);
             packer.resolveImage(doc, (bytes, path) -> {
                 if (StrUtil.isEmpty(packer.getCoverRelativePath())) {
@@ -53,20 +52,6 @@ public class MainTest {
             });
         }
         packer.pack("Volume1.epub");
-    }
-
-    public void resolveImages(Document doc, EpubPacker packer) {
-        Elements imageList = doc.select("img");
-        for (Element img : imageList) {
-            String src = img.attr("src");
-            if (src.startsWith("//")) {
-                src = "https:" + src;
-            }
-            Console.log("下载图片 {} ", src);
-            byte[] imageBytes = HttpRetryUtil.getBytes(src);
-            src = packer.addImageResource(imageBytes);
-            img.attr("src", src);
-        }
     }
 
 }
