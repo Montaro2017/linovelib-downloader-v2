@@ -41,6 +41,8 @@ public class Fetcher {
 
         Elements labelElements = doc.select(".book-label a");
         labelElements.forEach(element -> novel.getLabels().add(element.text()));
+        Catalog catalog = Fetcher.fetchCatalog(id);
+        novel.setCatalog(catalog);
         return novel;
     }
 
@@ -61,20 +63,15 @@ public class Fetcher {
         Catalog catalog = new Catalog();
 
         Elements elements = doc.select(".chapter-list > *");
-        boolean first = true;
         Chapter beforeChapter = null;
 
         Volume volume = new Volume();
         for (Element element : elements) {
             // 卷 div.class=volume
             if (element.classNames().contains("volume")) {
-                if (!first) {
-                    catalog.addVolume(volume);
-                }
-                first = false;
                 volume = new Volume();
                 volume.setVolumeName(element.text());
-
+                catalog.addVolume(volume);
             }
             // 章节 li.class=col-4
             if (element.classNames().contains("col-4")) {
