@@ -128,7 +128,7 @@ public class EpubPacker {
             }
             byte[] imageBytes = HttpRetryUtil.getBytes(src);
             String imagePath = this.addImageResource(imageBytes);
-            image.attr("src", src);
+            image.attr("src", imagePath);
             if (consumer != null) {
                 consumer.accept(imageBytes, imagePath);
             }
