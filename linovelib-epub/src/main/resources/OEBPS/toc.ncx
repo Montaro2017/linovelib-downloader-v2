@@ -9,13 +9,5 @@
     <docTitle>
         <text></text>
     </docTitle>
-    <navMap>
-<!--        <navPoint id="navPoint-1" playOrder="1">-->
-<!--            <navLabel>-->
-<!--                <text>插图</text>-->
-<!--            </navLabel>-->
-<!--            <content src="chapter0001.xhtml"/>-->
-<!--        </navPoint>-->
-
-    </navMap>
+    <navMap></navMap>
 </ncx>

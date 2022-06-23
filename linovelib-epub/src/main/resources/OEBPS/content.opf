@@ -7,7 +7,7 @@
         <dc:language>zh</dc:language>
         <dc:title></dc:title>
         <dc:creator></dc:creator>
-        <meta content="cover-image" name="cover"/>
+        <meta content="cover-image" name="cover"></meta>
     </metadata>
     <manifest>
         <item href="toc.ncx" id="ncx" media-type="application/x-dtbncx+xml"/>
