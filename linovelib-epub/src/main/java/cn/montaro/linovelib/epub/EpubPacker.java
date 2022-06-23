@@ -147,9 +147,19 @@ public class EpubPacker {
      */
     public File pack(String output) {
         File outputFile = FileUtil.file(output);
+        return this.pack(outputFile);
+    }
+
+    /**
+     * 打包资源为EPUB
+     *
+     * @param file 输出文件
+     * @return
+     */
+    public File pack(File file) {
         int resourceCount = this.resourceList.size();
         Resource[] resources = this.resourceList.toArray(new Resource[resourceCount]);
-        return ZipUtil.zip(outputFile, StandardCharsets.UTF_8, resources);
+        return ZipUtil.zip(file, StandardCharsets.UTF_8, resources);
     }
 
     /**

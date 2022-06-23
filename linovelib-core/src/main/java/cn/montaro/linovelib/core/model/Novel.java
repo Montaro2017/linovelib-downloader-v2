@@ -1,5 +1,6 @@
 package cn.montaro.linovelib.core.model;
 
+import cn.hutool.core.util.StrUtil;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -37,4 +38,11 @@ public class Novel {
      * 目录
      */
     private Catalog catalog;
+
+    public String getNovelDesc() {
+        String novelDesc = this.novelDesc;
+        novelDesc = StrUtil.replace(novelDesc, "<br> ", "\r\n");
+        novelDesc = StrUtil.replace(novelDesc, "<br>", "\r\n");
+        return novelDesc;
+    }
 }
