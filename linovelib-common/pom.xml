@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>linovelib-commom</artifactId>
+    <artifactId>linovelib-common</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -29,6 +29,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <scope>compile</scope>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/cn.hutool/hutool-all -->

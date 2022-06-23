@@ -9,9 +9,10 @@
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <modules>
-        <module>linovelib-commom</module>
+        <module>linovelib-common</module>
         <module>linovelib-core</module>
         <module>linovelib-epub</module>
+        <module>linovelib-cli</module>
     </modules>
 
     <properties>
@@ -30,7 +31,7 @@
 
             <dependency>
                 <groupId>cn.montaro</groupId>
-                <artifactId>linovelib-commom</artifactId>
+                <artifactId>linovelib-common</artifactId>
                 <version>${app.version}</version>
             </dependency>
 

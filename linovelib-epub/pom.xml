@@ -20,7 +20,7 @@
 
         <dependency>
             <groupId>cn.montaro</groupId>
-            <artifactId>linovelib-commom</artifactId>
+            <artifactId>linovelib-common</artifactId>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
