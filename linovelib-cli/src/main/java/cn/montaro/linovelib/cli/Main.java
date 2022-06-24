@@ -38,6 +38,7 @@ public class Main {
     }
 
     public static void printWelcome() {
+        Console.log();
         Console.log("欢迎使用哔哩轻小说下载器！");
         Console.log("作者: {}", "Sparks");
         Console.log("当前版本: {}", VERSION);
@@ -50,6 +51,7 @@ public class Main {
         Console.log("请输入小说id或URL:");
         String input = Console.scanner().nextLine();
         int novelId = getNovelId(input);
+        Console.log();
         Novel novel = Fetcher.fetchNovel(novelId);
         Console.log("书名: {}", novel.getNovelName());
         Console.log("作者: {}", novel.getAuthor());
