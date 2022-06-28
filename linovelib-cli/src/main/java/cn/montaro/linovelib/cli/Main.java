@@ -92,8 +92,10 @@ public class Main {
         List<Volume> volumeList = catalog.getVolumeList();
         for (Volume volume : volumeList) {
             EpubPacker packer = new EpubPacker();
+            Console.log("下载：{}", volume.getVolumeName());
             List<Chapter> chapterList = volume.getChapterList();
             for (Chapter chapter : chapterList) {
+                Console.log("\t下载: {}", chapter.getChapterName());
                 String chapterUrl = chapter.getChapterUrl();
                 Document doc = Fetcher.fetchChapterContent(chapterUrl);
                 packer.addChapterResource(doc, chapter.getChapterName(), false);
@@ -109,9 +111,9 @@ public class Main {
             File dest = FileUtil.file(dir, StrUtil.format("{} {}.epub", novel.getNovelName(), volume.getVolumeName()));
             packer.pack(dest);
             if (dest.exists()) {
-                Console.log("打包：{} 成功", FileUtil.getPrefix(dest));
+                Console.log("打包：{} 成功\n", FileUtil.getPrefix(dest));
             } else {
-                Console.log("打包：{} 失败", FileUtil.getPrefix(dest));
+                Console.log("打包：{} 失败\n", FileUtil.getPrefix(dest));
             }
         }
     }
