@@ -8,6 +8,7 @@ import cn.hutool.core.util.ZipUtil;
 import cn.montaro.linovelib.common.util.HttpRetryUtil;
 import cn.montaro.linovelib.epub.constant.EpubConstant;
 import cn.montaro.linovelib.epub.resource.*;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -20,19 +21,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-
+@Slf4j
 public class EpubPacker {
 
-    private List<EpubResource> resourceList = new ArrayList<>();
-
+    private final List<EpubResource> resourceList = new ArrayList<>();
+    // content.opf 元数据及文件清单
+    private final OPFResource opf;
+    // toc.ncx 目录
+    private final NCXResource ncx;
     private int imageResourceCount = 0;
     private int chapterResourceCount = 0;
-
-    // content.opf 元数据及文件清单
-    private OPFResource opf;
-    // toc.ncx 目录
-    private NCXResource ncx;
-
     private String cover;
 
     public EpubPacker() {
@@ -48,6 +46,42 @@ public class EpubPacker {
 
         this.resourceList.add(opf);
         this.resourceList.add(ncx);
+    }
+
+    /**
+     * <p>生成图片路径</p>
+     * <p>如: OEBPS/images/0001.jpg</p>
+     *
+     * @param index 索引
+     * @return
+     */
+    private static String getImageResourcePath(int index) {
+        return String.format(EpubConstant.PATH_IMAGES + "%04d.jpg", index);
+    }
+
+    /**
+     * <p>生成章节路径</p>
+     * <p>如: OEBPS/chapter0001.xhtml</p>
+     *
+     * @param index 索引
+     * @return
+     */
+    private static String getChapterResourcePath(int index) {
+        return String.format(EpubConstant.PATH_OEBPS + "chapter%04d.xhtml", index);
+    }
+
+    /**
+     * 获取相对路径
+     *
+     * @param from
+     * @param to
+     * @return
+     */
+    public static String relative(String from, String to) {
+        Path sourcePath = StrUtil.endWith(from, "/") ? Paths.get(from) : Paths.get(from).getParent();
+        Path destPath = Paths.get(to);
+        Path relativize = sourcePath.relativize(destPath);
+        return relativize.toString().replace("\\", "/");
     }
 
     /**
@@ -126,6 +160,7 @@ public class EpubPacker {
             if (StrUtil.startWith(src, "//")) {
                 src = "https:" + src;
             }
+            log.debug("下载图片: {}", src);
             byte[] imageBytes = HttpRetryUtil.getBytes(src);
             String imagePath = this.addImageResource(imageBytes);
             image.attr("src", imagePath);
@@ -159,43 +194,8 @@ public class EpubPacker {
     public File pack(File file) {
         int resourceCount = this.resourceList.size();
         Resource[] resources = this.resourceList.toArray(new Resource[resourceCount]);
+        log.info("打包EPUB, 资源文件数: {}, 输出路径：{}", resourceCount, FileUtil.getAbsolutePath(file));
         return ZipUtil.zip(file, StandardCharsets.UTF_8, resources);
-    }
-
-    /**
-     * <p>生成图片路径</p>
-     * <p>如: OEBPS/images/0001.jpg</p>
-     *
-     * @param index 索引
-     * @return
-     */
-    private static String getImageResourcePath(int index) {
-        return String.format(EpubConstant.PATH_IMAGES + "%04d.jpg", index);
-    }
-
-    /**
-     * <p>生成章节路径</p>
-     * <p>如: OEBPS/chapter0001.xhtml</p>
-     *
-     * @param index 索引
-     * @return
-     */
-    private static String getChapterResourcePath(int index) {
-        return String.format(EpubConstant.PATH_OEBPS + "chapter%04d.xhtml", index);
-    }
-
-    /**
-     * 获取相对路径
-     *
-     * @param from
-     * @param to
-     * @return
-     */
-    public static String relative(String from, String to) {
-        Path sourcePath = StrUtil.endWith(from, "/") ? Paths.get(from) : Paths.get(from).getParent();
-        Path destPath = Paths.get(to);
-        Path relativize = sourcePath.relativize(destPath);
-        return relativize.toString().replace("\\", "/");
     }
 
 }

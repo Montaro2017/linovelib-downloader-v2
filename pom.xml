@@ -24,6 +24,8 @@
         <lombok.version>1.18.24</lombok.version>
         <junit.version>5.9.0-M1</junit.version>
         <jsoup.version>1.15.1</jsoup.version>
+        <slf4j.version>1.7.21</slf4j.version>
+        <logback.version>1.2.10</logback.version>
     </properties>
 
     <dependencyManagement>
@@ -74,6 +76,27 @@
                 <groupId>org.jsoup</groupId>
                 <artifactId>jsoup</artifactId>
                 <version>${jsoup.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+                <scope>compile</scope>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/ch.qos.logback/logback-core -->
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/ch.qos.logback/logback-classic -->
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
             </dependency>
 
         </dependencies>

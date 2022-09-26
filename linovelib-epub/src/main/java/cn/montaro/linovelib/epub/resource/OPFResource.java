@@ -12,13 +12,12 @@ import java.nio.charset.StandardCharsets;
 
 public class OPFResource extends EpubResource {
 
+    private final Element idEl;
+    private final Element titleEl;
+    private final Element manifestEl;
+    private final Element spineEl;
     private Document doc = null;
-
-    private Element idEl;
-    private Element titleEl;
     private Element coverEl;
-    private Element manifestEl;
-    private Element spineEl;
 
     private OPFResource(Document doc) {
         super(EpubConstant.PATH_CONTENT_OPF);

@@ -10,6 +10,7 @@ import java.io.InputStream;
 
 /**
  * 代码参考
+ *
  * <a>https://www.cnblogs.com/xiaona/p/13869504.html</a>
  */
 public class FastImageUtil {
@@ -23,6 +24,7 @@ public class FastImageUtil {
         }
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public static SimpleImageInfo getImageInfo(InputStream is) throws IOException {
         int width = -1;
         int height = -1;

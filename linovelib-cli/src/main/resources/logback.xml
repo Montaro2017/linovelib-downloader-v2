@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration debug="false">
+
+    <property name="LOG_FILE_PATTERN" value="log/%d{yyyy-MM-dd}.log"/>
+
+    <property name="FILE_PATTERN" value="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{50} - [%method,%line] - %msg%n"/>
+    <property name="CONSOLE_PATTERN" value="%msg%n"/>
+
+    <property name="MAX_FILE_SIZE" value="20MB"/>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FILE_PATTERN}</fileNamePattern>
+            <maxHistory>3</maxHistory>
+            <maxSize>10MB</maxSize>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${FILE_PATTERN}</pattern>
+        </encoder>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <MaxFileSize>${MAX_FILE_SIZE}</MaxFileSize>
+        </triggeringPolicy>
+    </appender>
+
+    <logger name="cn.montaro.linovelib" level="DEBUG">
+        <appender-ref ref="FILE"/>
+    </logger>
+
+</configuration>

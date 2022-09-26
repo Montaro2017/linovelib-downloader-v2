@@ -15,6 +15,7 @@ import cn.montaro.linovelib.core.model.Novel;
 import cn.montaro.linovelib.core.model.Volume;
 import cn.montaro.linovelib.epub.EpubPacker;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 
 import java.io.File;
@@ -26,6 +27,7 @@ import java.util.List;
  * @author ZhangJiaYu
  * @date 2022/6/23
  */
+@Slf4j
 public class Main {
 
     public static final String VERSION = "1.0.0";
@@ -33,8 +35,12 @@ public class Main {
     public static final String GIT_URL = "https://gitee.com/Montaro2017/linovelib-downloader-v2";
 
     public static void main(String[] args) {
-        printWelcome();
-        start();
+        try {
+            printWelcome();
+            start();
+        } catch (Throwable e) {
+            log.error(e.getMessage(), e);
+        }
     }
 
     public static void printWelcome() {
@@ -50,13 +56,18 @@ public class Main {
     public static void start() {
         Console.log("请输入小说id或URL:");
         String input = Console.scanner().nextLine();
+        log.info("输入内容: {}", input);
         int novelId = getNovelId(input);
+        log.info("获取到ID: {}", novelId);
         Console.log();
         Novel novel = Fetcher.fetchNovel(novelId);
+        if (novel == null) {
+            throw new RuntimeException("获取小说内容为空");
+        }
         Console.log("书名: {}", novel.getNovelName());
         Console.log("作者: {}", novel.getAuthor());
         Console.log("标签: {}", CollectionUtil.join(novel.getLabels(), ", "));
-        Console.log("简介: {}", novel.getNovelDesc());
+        Console.log("简介: {}", novel.getNormalizedDesc());
 
         pause();
 
@@ -85,7 +96,8 @@ public class Main {
     private static void epub(Novel novel) {
         File dir = FileUtil.mkdir(novel.getNovelName());
         if (dir == null) {
-            throw new RuntimeException("创建文件夹失败");
+            log.error("创建文件夹失败 {}", novel.getNovelName());
+            throw new RuntimeException("创建文件夹失败 " + novel.getNovelName());
         }
         Console.log("EPUB文件保存地址: {}", dir.getAbsolutePath());
         Catalog catalog = novel.getCatalog();
@@ -109,6 +121,7 @@ public class Main {
                 });
             }
             File dest = FileUtil.file(dir, StrUtil.format("{} {}.epub", novel.getNovelName(), volume.getVolumeName()));
+            log.info("目标文件名: {}", dest.getAbsolutePath());
             packer.pack(dest);
             if (dest.exists()) {
                 Console.log("打包：{} 成功\n", FileUtil.getPrefix(dest));

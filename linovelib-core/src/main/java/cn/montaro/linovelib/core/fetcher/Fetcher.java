@@ -8,6 +8,7 @@ import cn.montaro.linovelib.core.model.Catalog;
 import cn.montaro.linovelib.core.model.Chapter;
 import cn.montaro.linovelib.core.model.Novel;
 import cn.montaro.linovelib.core.model.Volume;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -16,6 +17,7 @@ import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 
+@Slf4j
 public class Fetcher {
 
     /**
@@ -26,7 +28,7 @@ public class Fetcher {
      */
     public static Novel fetchNovel(long id) {
         String novelUrl = getNovelUrl(id);
-
+        log.debug("获取小说信息 ID = {}, URL = {}", id, novelUrl);
         Document doc = Jsoup.parse(HttpRetryUtil.get(novelUrl));
         if (isErrorPage(doc)) {
             return null;
@@ -54,7 +56,7 @@ public class Fetcher {
      */
     public static Catalog fetchCatalog(long id) {
         String novelCatalogUrl = getNovelCatalogUrl(id);
-
+        log.debug("获取小说目录信息 ID = {}, URL = {}", id, novelCatalogUrl);
         Document doc = Jsoup.parse(HttpRetryUtil.get(novelCatalogUrl));
         if (isErrorPage(doc)) {
             return null;
@@ -87,11 +89,13 @@ public class Fetcher {
                     // 如果上一章url为空且本章url不为空 则从本章获取
                     String prevChapterUrl = getPrevChapterUrl(chapterUrl);
                     beforeChapter.setChapterUrl(prevChapterUrl);
+                    log.debug("从本章节获取上一章的URL({} {}) 本章URL = {}, 上一章URL = {}", volume.getVolumeName(), chapter.getChapterName(), chapterUrl, prevChapterUrl);
                 }
                 if (beforeChapter != null && StrUtil.isNotEmpty(beforeChapter.getChapterUrl()) && StrUtil.isEmpty(chapter.getChapterUrl())) {
                     // 从本章url为空且上一章不url为空 则从上一章获取
                     String nextChapterUrl = getNextChapterUrl(beforeChapter.getChapterUrl());
                     chapter.setChapterUrl(nextChapterUrl);
+                    log.debug("从上一章章节获取本章的URL({} {}) 上一章URL = {}, 本章URL = {}", volume.getVolumeName(), chapter.getChapterName(), chapterUrl, nextChapterUrl);
                 }
                 volume.addChapter(chapter);
                 beforeChapter = chapter;
@@ -111,6 +115,7 @@ public class Fetcher {
     private static boolean isErrorPage(Document doc) {
         Element title = doc.head().selectFirst("title");
         if (title == null || StrUtil.contains(title.text(), "错误")) {
+            log.info("页面错误 title = {}", title);
             return true;
         }
         return false;
@@ -123,12 +128,14 @@ public class Fetcher {
      * @return
      */
     public static Document fetchChapterContent(String chapterUrl) {
+
         // 避免缺失html、head和body标签以至于某些软件无法识别
         Document doc = Jsoup.parse("");
         Element body = doc.body();
         Element lastParagraph = null;
         boolean isEnd;
         do {
+            log.debug("获取章节内容 URL = {}", chapterUrl);
             Document page = Jsoup.parse(HttpRetryUtil.get(chapterUrl));
             Element currentDocEl = page.selectFirst("#TextContent");
             if (currentDocEl == null) {
@@ -158,6 +165,7 @@ public class Fetcher {
             }
             isEnd = StrUtil.containsIgnoreCase(next.text(), Constant.NEXT_CHAPTER) || StrUtil.containsIgnoreCase(next.text(), Constant.RETURN_CATALOG);
             chapterUrl = Constant.DOMAIN + next.attr(Constant.LINK_ATTR_HREF);
+            log.debug("下一页 URL = {}", chapterUrl);
         } while (!isEnd);
         return doc;
     }

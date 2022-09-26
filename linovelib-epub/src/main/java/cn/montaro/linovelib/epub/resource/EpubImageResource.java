@@ -6,7 +6,7 @@ import java.io.InputStream;
 
 public class EpubImageResource extends EpubResource {
 
-    private byte[] imageBytes;
+    private final byte[] imageBytes;
 
     public EpubImageResource(String pathInEpub, byte[] imageBytes) {
         super(pathInEpub);

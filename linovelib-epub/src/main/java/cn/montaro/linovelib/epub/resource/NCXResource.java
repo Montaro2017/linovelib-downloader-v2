@@ -12,11 +12,11 @@ import java.nio.charset.StandardCharsets;
 
 public class NCXResource extends EpubResource {
 
-    private Document doc;
+    private final Document doc;
 
-    private Element idEl;
-    private Element titleEl;
-    private Element navMapEl;
+    private final Element idEl;
+    private final Element titleEl;
+    private final Element navMapEl;
 
     private NCXResource(Document doc) {
         super(EpubConstant.PATH_TOC_NCX);
