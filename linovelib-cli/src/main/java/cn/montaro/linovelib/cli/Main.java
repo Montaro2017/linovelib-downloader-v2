@@ -120,6 +120,7 @@ public class Main {
                     }
                 });
             }
+            packer.setBookName(StrUtil.format("{} {}", novel.getNovelName(), volume.getVolumeName()));
             File dest = FileUtil.file(dir, StrUtil.format("{} {}.epub", novel.getNovelName(), volume.getVolumeName()));
             log.info("目标文件名: {}", dest.getAbsolutePath());
             packer.pack(dest);
