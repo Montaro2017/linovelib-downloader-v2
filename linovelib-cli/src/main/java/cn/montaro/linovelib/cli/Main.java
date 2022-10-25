@@ -100,7 +100,7 @@ public class Main {
             log.error("创建文件夹失败 {}", novel.getNovelName());
             throw new RuntimeException("创建文件夹失败 " + novel.getNovelName());
         }
-        Console.log("EPUB文件保存地址: {}", dir.getAbsolutePath());
+        // Console.log("EPUB文件保存地址: {}", dir.getAbsolutePath());
         Catalog catalog = novel.getCatalog();
         List<Volume> volumeList = catalog.getVolumeList();
         for (Volume volume : volumeList) {
@@ -125,7 +125,8 @@ public class Main {
             log.info("目标文件名: {}", dest.getAbsolutePath());
             packer.pack(dest);
             if (dest.exists()) {
-                Console.log("打包：{} 成功\n", FileUtil.getPrefix(dest));
+                Console.log("打包：{} 成功", FileUtil.getPrefix(dest));
+                Console.log("EPUB文件保存地址: {}\n", dir.getAbsolutePath());
             } else {
                 Console.log("打包：{} 失败\n", FileUtil.getPrefix(dest));
             }

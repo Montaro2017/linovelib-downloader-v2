@@ -14,12 +14,16 @@ import java.nio.charset.StandardCharsets;
  */
 public class EpubChapterResource extends EpubResource {
 
-    private Document doc;
+    private final Document doc;
 
     public EpubChapterResource(String pathInEpub, Document doc) {
         super(pathInEpub);
         this.doc = doc;
-        doc.outputSettings().prettyPrint(true);
+        doc.outputSettings(
+                new Document.OutputSettings()
+                        .syntax(Document.OutputSettings.Syntax.xml)
+                        .prettyPrint(true)
+        );
     }
 
     @Override
