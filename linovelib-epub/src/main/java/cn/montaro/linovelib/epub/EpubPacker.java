@@ -164,6 +164,7 @@ public class EpubPacker {
             byte[] imageBytes = HttpRetryUtil.getBytes(src);
             String imagePath = this.addImageResource(imageBytes);
             image.attr("src", imagePath);
+            image.wrap("<div class=\"duokan-image-single\"></div>");
             if (consumer != null) {
                 consumer.accept(imageBytes, imagePath);
             }
