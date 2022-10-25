@@ -16,6 +16,7 @@ public class OPFResource extends EpubResource {
     private final Element titleEl;
     private final Element manifestEl;
     private final Element spineEl;
+    private final Element creatorEl;
     private Document doc = null;
     private Element coverEl;
 
@@ -27,6 +28,7 @@ public class OPFResource extends EpubResource {
         this.titleEl = doc.getElementsByTag("dc:title").first();
         this.manifestEl = doc.getElementsByTag("manifest").first();
         this.spineEl = doc.getElementsByTag("spine").first();
+        this.creatorEl = doc.getElementsByTag("dc:creator").first();
     }
 
     public static OPFResource newInstance() {
@@ -41,6 +43,10 @@ public class OPFResource extends EpubResource {
 
     public void setTitle(String epubTitle) {
         this.titleEl.text(epubTitle);
+    }
+
+    public void setCreator(String creator) {
+        this.creatorEl.text(creator);
     }
 
     public void setCover(String relativeImagePath) {

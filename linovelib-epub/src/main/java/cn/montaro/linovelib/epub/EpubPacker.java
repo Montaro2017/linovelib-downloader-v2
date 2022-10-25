@@ -105,6 +105,15 @@ public class EpubPacker {
         this.cover = relativePath;
     }
 
+    /**
+     * 设置作者
+     *
+     * @param author 作者
+     */
+    public void setAuthor(String author) {
+        opf.setCreator(author);
+    }
+
     public String getCoverRelativePath() {
         return this.cover;
     }
