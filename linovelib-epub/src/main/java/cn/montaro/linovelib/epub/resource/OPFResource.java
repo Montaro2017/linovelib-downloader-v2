@@ -55,15 +55,19 @@ public class OPFResource extends EpubResource {
     }
 
     public void addChapter(String relativeChapterPath) {
-        Element item = doc.createElement("item");
-        item.attr("id", relativeChapterPath);
-        item.attr("href", relativeChapterPath);
-        item.attr("media-type", "application/xhtml+xml");
-        this.manifestEl.appendChild(item);
+        this.addManifest(relativeChapterPath, relativeChapterPath, "application/xhtml+xml");
 
         Element itemRef = doc.createElement("itemref");
         itemRef.attr("idref", relativeChapterPath);
         this.spineEl.appendChild(itemRef);
+    }
+
+    public void addManifest(String id, String href, String mediaType) {
+        Element item = doc.createElement("item");
+        item.attr("id", id);
+        item.attr("href", href);
+        item.attr("media-type", mediaType);
+        this.manifestEl.appendChild(item);
     }
 
     @Override

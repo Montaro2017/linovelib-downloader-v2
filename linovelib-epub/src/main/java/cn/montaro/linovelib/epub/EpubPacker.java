@@ -5,6 +5,7 @@ import cn.hutool.core.io.resource.Resource;
 import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
+import cn.montaro.linovelib.common.model.SimpleImageInfo;
 import cn.montaro.linovelib.common.util.HttpRetryUtil;
 import cn.montaro.linovelib.epub.constant.EpubConstant;
 import cn.montaro.linovelib.epub.resource.*;
@@ -114,11 +115,15 @@ public class EpubPacker {
      * @param imageBytes 图片bytes
      * @return EPUB中的图片路径
      */
-    public String addImageResource(byte[] imageBytes) {
+    public EpubImageResource addImageResource(byte[] imageBytes) {
         String pathInEpub = getImageResourcePath(++this.imageResourceCount);
-        EpubImageResource epubImageResource = new EpubImageResource(pathInEpub, imageBytes);
+        String relativeHref = relative(EpubConstant.PATH_OEBPS, pathInEpub);
+        EpubImageResource epubImageResource = new EpubImageResource(pathInEpub, imageBytes, relativeHref);
         this.resourceList.add(epubImageResource);
-        return relative(EpubConstant.PATH_OEBPS, pathInEpub);
+
+        // 添加到manifest中 避免Koodo Reader无法正确显示
+        this.opf.addManifest(relativeHref, relativeHref, epubImageResource.getImageInfo().getMimeType());
+        return epubImageResource;
     }
 
     /**
@@ -153,7 +158,7 @@ public class EpubPacker {
         this.addChapterResource(chapterDocument, chapterName, true);
     }
 
-    public void resolveImage(Document doc, BiConsumer<byte[], String> consumer) {
+    public void resolveImage(Document doc, BiConsumer<SimpleImageInfo, String> consumer) {
         Elements imageList = doc.select("img");
         for (Element image : imageList) {
             String src = image.attr("src");
@@ -162,11 +167,11 @@ public class EpubPacker {
             }
             log.debug("下载图片: {}", src);
             byte[] imageBytes = HttpRetryUtil.getBytes(src);
-            String imagePath = this.addImageResource(imageBytes);
-            image.attr("src", imagePath);
+            EpubImageResource imageResource = this.addImageResource(imageBytes);
+            image.attr("src", imageResource.getPath());
             image.wrap("<div class=\"duokan-image-single\"></div>");
             if (consumer != null) {
-                consumer.accept(imageBytes, imagePath);
+                consumer.accept(imageResource.getImageInfo(), imageResource.getPath());
             }
         }
     }

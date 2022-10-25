@@ -112,9 +112,8 @@ public class Main {
                 String chapterUrl = chapter.getChapterUrl();
                 Document doc = Fetcher.fetchChapterContent(chapterUrl);
                 packer.addChapterResource(doc, chapter.getChapterName(), false);
-                packer.resolveImage(doc, (bytes, path) -> {
+                packer.resolveImage(doc, (imageInfo, path) -> {
                     if (StrUtil.isEmpty(packer.getCoverRelativePath())) {
-                        SimpleImageInfo imageInfo = FastImageUtil.getImageInfo(bytes);
                         if (imageInfo != null && imageInfo.getRatio() < 1) {
                             packer.setCover(path);
                         }
