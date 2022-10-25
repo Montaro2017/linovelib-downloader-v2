@@ -59,6 +59,7 @@ public class Main {
         log.info("输入内容: {}", input);
         int novelId = getNovelId(input);
         log.info("获取到ID: {}", novelId);
+        Console.log("正在获取小说详情及目录，请耐心等待...");
         Console.log();
         Novel novel = Fetcher.fetchNovel(novelId);
         if (novel == null) {
