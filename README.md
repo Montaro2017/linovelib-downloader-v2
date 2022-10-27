@@ -13,7 +13,9 @@
 
 #### 多看阅读
 
-**插图支持交互模式，点击可全屏查看**
+**多看阅读插图支持交互模式，点击可全屏查看**
+
+<img src="./images/duokan-1.jpg" style="width:50%"/>
 
 ![多看阅读1](./images/duokan-1.jpg)
 ![多看阅读2](./images/duokan-2.jpg)
