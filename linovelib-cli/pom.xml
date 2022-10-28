@@ -64,7 +64,7 @@
                         </manifest>
                     </archive>
                     <appendAssemblyId>false</appendAssemblyId>
-                    <finalName>${project.groupId}.${project.artifactId}-${app.version}</finalName>
+                    <finalName>${parent.artifactId}-${app.version}</finalName>
                 </configuration>
                 <executions>
                     <execution>
