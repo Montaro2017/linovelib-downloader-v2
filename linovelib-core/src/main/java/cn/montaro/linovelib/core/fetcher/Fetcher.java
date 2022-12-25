@@ -141,6 +141,7 @@ public class Fetcher {
             if (currentDocEl == null) {
                 return doc;
             }
+            currentDocEl.select("br").remove();
             currentDocEl.select(".tp").remove();
             currentDocEl.select(".bd").remove();
             currentDocEl = handleFontSecret(currentDocEl);
