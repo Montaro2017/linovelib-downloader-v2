@@ -50,4 +50,9 @@ public class MainTest {
         }
     }
 
+    @Test
+    public void testEnsureFileName(){
+        String name = "<>233<>|:\":?*/\\123???？<>/|\\...epub";
+        System.out.println( Main.ensureFileName(name));
+    }
 }

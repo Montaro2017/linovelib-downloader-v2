@@ -4,10 +4,9 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Console;
+import cn.hutool.core.lang.func.Func1;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.montaro.linovelib.common.model.SimpleImageInfo;
-import cn.montaro.linovelib.common.util.FastImageUtil;
 import cn.montaro.linovelib.core.fetcher.Fetcher;
 import cn.montaro.linovelib.core.model.Catalog;
 import cn.montaro.linovelib.core.model.Chapter;
@@ -20,6 +19,7 @@ import org.jsoup.nodes.Document;
 
 import java.io.File;
 import java.util.List;
+import java.util.regex.Matcher;
 
 /**
  * Description:
@@ -96,10 +96,12 @@ public class Main {
     }
 
     private static void epub(Novel novel) {
-        File dir = FileUtil.mkdir(novel.getNovelName());
-        if (dir == null) {
-            log.error("创建文件夹失败 {}", novel.getNovelName());
-            throw new RuntimeException("创建文件夹失败 " + novel.getNovelName());
+        String dirName = novel.getNovelName();
+        dirName = ensureFileName(dirName);
+        File dir = FileUtil.mkdir(dirName);
+        if (dir == null || !dir.exists()) {
+            log.error("创建文件夹失败 {}", dirName);
+            throw new RuntimeException("创建文件夹失败 " + dirName);
         }
         // Console.log("EPUB文件保存地址: {}", dir.getAbsolutePath());
         Catalog catalog = novel.getCatalog();
@@ -123,15 +125,24 @@ public class Main {
             }
             packer.setAuthor(novel.getAuthor());
             packer.setBookName(StrUtil.format("{} {}", novel.getNovelName(), volume.getVolumeName()));
-            File dest = FileUtil.file(dir, StrUtil.format("{} {}.epub", novel.getNovelName(), volume.getVolumeName()));
+            String fileName = StrUtil.format("{} {}.epub", novel.getNovelName(), volume.getVolumeName());
+            fileName = ensureFileName(fileName);
+            File dest = FileUtil.file(dirName, fileName);
             log.info("目标文件名: {}", dest.getAbsolutePath());
             packer.pack(dest);
             if (dest.exists()) {
-                Console.log("打包：{} 成功", FileUtil.getPrefix(dest));
+                Console.log("打包：{} 成功", dest.getName());
                 Console.log("EPUB文件保存地址: {}\n", dir.getAbsolutePath());
             } else {
                 Console.log("打包：{} 失败\n", FileUtil.getPrefix(dest));
             }
         }
+    }
+
+    public static String ensureFileName(String name) {
+        // 去除文件名中的特殊字符及前后空格
+        return StrUtil.trim(
+                StrUtil.replace(name, "<|>|:|\"|/|\\\\|\\?|\\*|\\\\|\\|", (Func1<Matcher, String>) parameter -> " ")
+        );
     }
 }
