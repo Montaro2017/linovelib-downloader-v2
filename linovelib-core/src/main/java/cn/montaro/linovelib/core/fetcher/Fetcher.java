@@ -45,6 +45,11 @@ public class Fetcher {
         labelElements.forEach(element -> novel.getLabels().add(element.text()));
         Catalog catalog = Fetcher.fetchCatalog(id);
         novel.setCatalog(catalog);
+
+        Element firstScript = doc.selectFirst("body>script:first-child");
+        if (firstScript != null && StrUtil.contains(firstScript.html(), "no.html")) {
+            novel.setNotOnTheShelf(true);
+        }
         return novel;
     }
 

@@ -71,6 +71,12 @@ public class Main {
         Console.log("标签: {}", CollectionUtil.join(novel.getLabels(), ", "));
         Console.log("简介: {}", novel.getNormalizedDesc());
 
+        if (novel.getNotOnTheShelf()) {
+            Console.log();
+            Console.log("当前小说已下架，无法通过本软件下载！");
+            return;
+        }
+
         pause();
 
         epub(novel);

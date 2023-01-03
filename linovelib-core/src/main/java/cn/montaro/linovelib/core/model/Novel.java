@@ -41,6 +41,11 @@ public class Novel {
      */
     private Catalog catalog;
 
+    /**
+     * 是否下架
+     */
+    private Boolean notOnTheShelf = false;
+
     public String getNormalizedDesc() {
         String novelDesc = this.novelDesc;
         novelDesc = StrUtil.replace(novelDesc, "<br> ", "\r\n");
