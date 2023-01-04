@@ -1,6 +1,6 @@
 # 哔哩轻小说打包下载器
 
-[Gitee](https://gitee.com/Montaro2017/linovelib-downloader-v2)|[Github](https://github.com/Montaro2017/linovelib-downloader-v2)
+[Gitee](https://gitee.com/Montaro2017/linovelib-downloader-v2) | [Github](https://github.com/Montaro2017/linovelib-downloader-v2)
 
 ## 介绍
 
