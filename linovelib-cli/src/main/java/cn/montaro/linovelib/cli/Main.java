@@ -21,12 +21,6 @@ import java.io.File;
 import java.util.List;
 import java.util.regex.Matcher;
 
-/**
- * Description:
- *
- * @author ZhangJiaYu
- * @date 2022/6/23
- */
 @Slf4j
 public class Main {
 
@@ -38,7 +32,7 @@ public class Main {
         try {
             printWelcome();
             start();
-        } catch (Throwable e) {
+        } catch (Exception e) {
             e.printStackTrace();
             log.error(e.getMessage(), e);
         }
@@ -71,16 +65,13 @@ public class Main {
         Console.log("标签: {}", CollectionUtil.join(novel.getLabels(), ", "));
         Console.log("简介: {}", novel.getNormalizedDesc());
 
-        if (novel.getNotOnTheShelf()) {
+        if (Boolean.TRUE.equals(novel.getNotOnTheShelf())) {
             Console.log();
             Console.log("当前小说已下架，无法通过本软件下载！");
             return;
         }
-
         pause();
-
         epub(novel);
-
     }
 
     private static int getNovelId(String input) {
@@ -109,39 +100,15 @@ public class Main {
             log.error("创建文件夹失败 {}", dirName);
             throw new RuntimeException("创建文件夹失败 " + dirName);
         }
-        // Console.log("EPUB文件保存地址: {}", dir.getAbsolutePath());
+        // 保存目录
+        String destDir = dir.getAbsolutePath();
         Catalog catalog = novel.getCatalog();
         List<Volume> volumeList = catalog.getVolumeList();
+        int i = 0;
         for (Volume volume : volumeList) {
-            EpubPacker packer = new EpubPacker();
-            Console.log("下载：{}", volume.getVolumeName());
-            List<Chapter> chapterList = volume.getChapterList();
-            for (Chapter chapter : chapterList) {
-                Console.log("\t下载: {}", chapter.getChapterName());
-                String chapterUrl = chapter.getChapterUrl();
-                Document doc = Fetcher.fetchChapterContent(chapterUrl);
-                packer.addChapterResource(doc, chapter.getChapterName(), false);
-                packer.resolveImage(doc, (imageInfo, path) -> {
-                    if (StrUtil.isEmpty(packer.getCoverRelativePath())) {
-                        if (imageInfo != null && imageInfo.getRatio() < 1) {
-                            packer.setCover(path);
-                        }
-                    }
-                });
-            }
-            packer.setAuthor(novel.getAuthor());
-            packer.setBookName(StrUtil.format("{} {}", novel.getNovelName(), volume.getVolumeName()));
-            String fileName = StrUtil.format("{} {}.epub", novel.getNovelName(), volume.getVolumeName());
-            fileName = ensureFileName(fileName);
-            File dest = FileUtil.file(".", dirName, fileName);
-            log.info("目标文件名: {}", dest.getAbsolutePath());
-            packer.pack(dest);
-            if (dest.exists()) {
-                Console.log("打包：{} 成功", dest.getName());
-                Console.log("EPUB文件保存地址: {}\n", dir.getAbsolutePath());
-            } else {
-                Console.log("打包：{} 失败\n", FileUtil.getPrefix(dest));
-            }
+            i++;
+            if (i != 3) continue;
+            packVolume(novel, volume, destDir);
         }
     }
 
@@ -150,5 +117,39 @@ public class Main {
         return StrUtil.trim(
                 StrUtil.replace(name, "<|>|:|\"|/|\\\\|\\?|\\*|\\\\|\\|", (Func1<Matcher, String>) parameter -> " ")
         );
+    }
+
+    private static void packVolume(Novel novel, Volume volume, String destDir) {
+        EpubPacker packer = new EpubPacker();
+        Console.log("下载：{}", volume.getVolumeName());
+        List<Chapter> chapterList = volume.getChapterList();
+        for (Chapter chapter : chapterList) {
+            Console.print("\t下载: {}", chapter.getChapterName());
+            String chapterUrl = chapter.getChapterUrl();
+            if (StrUtil.isBlank(chapterUrl)) {
+                chapterUrl = Fetcher.resolveChapterUrl(novel.getCatalog(), chapter);
+                chapter.setChapterUrl(chapterUrl);
+            }
+            if (StrUtil.isNotBlank(chapterUrl)) {
+                Document doc = Fetcher.fetchChapterContent(chapterUrl);
+                packer.addChapterResource(doc, chapter.getChapterName(), true);
+                Console.log();
+            } else {
+                Console.log("\n\t\t 【X 错误 章节链接为空】");
+            }
+        }
+        packer.setAuthor(novel.getAuthor());
+        packer.setBookName(StrUtil.format("{} {}", novel.getNovelName(), volume.getVolumeName()));
+        String fileName = StrUtil.format("{} {}.epub", novel.getNovelName(), volume.getVolumeName());
+        fileName = ensureFileName(fileName);
+        File dest = FileUtil.file(destDir, fileName);
+        log.info("目标文件名: {}", dest.getAbsolutePath());
+        packer.pack(dest);
+        if (dest.exists()) {
+            Console.log("打包：{} 成功", dest.getName());
+            Console.log("EPUB文件保存地址: {}\n", destDir);
+        } else {
+            Console.log("打包：{} 失败\n", FileUtil.getPrefix(dest));
+        }
     }
 }

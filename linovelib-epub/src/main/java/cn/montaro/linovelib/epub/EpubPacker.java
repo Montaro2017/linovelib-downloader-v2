@@ -153,7 +153,13 @@ public class EpubPacker {
         this.opf.addChapter(relativePath);
         this.ncx.addChapter(chapterName, relativePath);
         if (autoResolveImage) {
-            this.resolveImage(chapterDocument, null);
+            this.resolveImage(chapterDocument, (imageInfo, path) -> {
+                if (StrUtil.isEmpty(this.getCoverRelativePath())
+                        && imageInfo != null
+                        && imageInfo.getRatio() < 1) {
+                    this.setCover(path);
+                }
+            });
         }
     }
 

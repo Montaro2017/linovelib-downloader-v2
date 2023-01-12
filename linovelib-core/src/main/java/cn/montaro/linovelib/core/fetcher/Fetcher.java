@@ -68,9 +68,7 @@ public class Fetcher {
         }
 
         Catalog catalog = new Catalog();
-
         Elements elements = doc.select(".chapter-list > *");
-        Chapter beforeChapter = null;
 
         Volume volume = new Volume();
         for (Element element : elements) {
@@ -84,26 +82,11 @@ public class Fetcher {
             if (element.classNames().contains("col-4")) {
                 Elements a = element.select("a");
                 String chapterUrl = a.attr(Constant.LINK_ATTR_HREF);
-
                 chapterUrl = (StrUtil.isEmpty(chapterUrl) || StrUtil.containsIgnoreCase(chapterUrl, "javascript")) ? null : Constant.DOMAIN + chapterUrl;
-
                 Chapter chapter = new Chapter()
                         .setChapterName(a.text())
                         .setChapterUrl(chapterUrl);
-                if (beforeChapter != null && StrUtil.isEmpty(beforeChapter.getChapterUrl()) && StrUtil.isNotEmpty(chapterUrl)) {
-                    // 如果上一章url为空且本章url不为空 则从本章获取
-                    String prevChapterUrl = getPrevChapterUrl(chapterUrl);
-                    beforeChapter.setChapterUrl(prevChapterUrl);
-                    log.debug("从本章节获取上一章的URL({} {}) 本章URL = {}, 上一章URL = {}", volume.getVolumeName(), chapter.getChapterName(), chapterUrl, prevChapterUrl);
-                }
-                if (beforeChapter != null && StrUtil.isNotEmpty(beforeChapter.getChapterUrl()) && StrUtil.isEmpty(chapter.getChapterUrl())) {
-                    // 从本章url为空且上一章不url为空 则从上一章获取
-                    String nextChapterUrl = getNextChapterUrl(beforeChapter.getChapterUrl());
-                    chapter.setChapterUrl(nextChapterUrl);
-                    log.debug("从上一章章节获取本章的URL({} {}) 上一章URL = {}, 本章URL = {}", volume.getVolumeName(), chapter.getChapterName(), chapterUrl, nextChapterUrl);
-                }
                 volume.addChapter(chapter);
-                beforeChapter = chapter;
             }
         }
 
@@ -149,7 +132,7 @@ public class Fetcher {
             currentDocEl.select("br").remove();
             currentDocEl.select(".tp").remove();
             currentDocEl.select(".bd").remove();
-            currentDocEl = handleFontSecret(currentDocEl);
+            handleFontSecret(currentDocEl);
             // 删除img标签的外部标签以解决在某些软件上只能显示一张图的问题
             currentDocEl.select(".divimage").unwrap();
             if (lastParagraph != null && !isParagraphEnds(lastParagraph)) {
@@ -196,6 +179,29 @@ public class Fetcher {
      */
     private static String getNovelCatalogUrl(long id) {
         return StrUtil.format("{}/novel/{}/catalog", Constant.DOMAIN, id);
+    }
+
+    /**
+     * 通过上下章补齐URL
+     *
+     * @param catalog 目录
+     * @param chapter URL为空的章节
+     * @return
+     */
+    public static String resolveChapterUrl(Catalog catalog, Chapter chapter) {
+        Chapter nextChapter = catalog.getNextChapter(chapter);
+        String chapterUrl = null;
+        if (nextChapter != null && StrUtil.isNotBlank(nextChapter.getChapterUrl())) {
+            chapterUrl = getPrevChapterUrl(nextChapter.getChapterUrl());
+        }
+        if (chapterUrl != null) {
+            return chapterUrl;
+        }
+        Chapter prevChapter = catalog.getPrevChapter(chapter);
+        if (prevChapter != null && StrUtil.isNotBlank(prevChapter.getChapterUrl())) {
+            chapterUrl = getNextChapterUrl(prevChapter.getChapterUrl());
+        }
+        return chapterUrl;
     }
 
     /**
@@ -250,7 +256,7 @@ public class Fetcher {
         if (el == null) {
             return null;
         }
-        el.forEachNode((node) -> {
+        el.forEachNode(node -> {
             if (node instanceof TextNode) {
                 TextNode textNode = (TextNode) node;
                 StringBuilder sb = new StringBuilder(textNode.text());
