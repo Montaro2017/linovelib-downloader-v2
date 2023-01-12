@@ -104,10 +104,7 @@ public class Main {
         String destDir = dir.getAbsolutePath();
         Catalog catalog = novel.getCatalog();
         List<Volume> volumeList = catalog.getVolumeList();
-        int i = 0;
         for (Volume volume : volumeList) {
-            i++;
-            if (i != 3) continue;
             packVolume(novel, volume, destDir);
         }
     }
