@@ -133,7 +133,7 @@ public class Main {
             packer.setBookName(StrUtil.format("{} {}", novel.getNovelName(), volume.getVolumeName()));
             String fileName = StrUtil.format("{} {}.epub", novel.getNovelName(), volume.getVolumeName());
             fileName = ensureFileName(fileName);
-            File dest = FileUtil.file(dirName, fileName);
+            File dest = FileUtil.file(".", dirName, fileName);
             log.info("目标文件名: {}", dest.getAbsolutePath());
             packer.pack(dest);
             if (dest.exists()) {
