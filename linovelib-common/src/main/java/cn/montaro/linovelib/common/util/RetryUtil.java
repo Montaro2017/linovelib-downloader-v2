@@ -32,7 +32,7 @@ public class RetryUtil {
                 }
             }
         } while (tryTimes++ < retry);
-        throw new RuntimeException("Retry Exception: React max retry timers " + retry);
+        throw new RuntimeException("Retry Exception: Reach max retry times " + retry);
     }
 
     public static <T> T retry(Supplier<T> supplier) {
