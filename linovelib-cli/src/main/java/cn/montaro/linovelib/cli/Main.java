@@ -7,6 +7,7 @@ import cn.hutool.core.lang.Console;
 import cn.hutool.core.lang.func.Func1;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpUtil;
 import cn.montaro.linovelib.core.fetcher.Fetcher;
 import cn.montaro.linovelib.core.model.Catalog;
 import cn.montaro.linovelib.core.model.Chapter;
@@ -39,10 +40,14 @@ public class Main {
     }
 
     public static void printWelcome() {
+        String latestVersion = getLatestVersion();
+        if (StrUtil.isNotBlank(latestVersion)) {
+            latestVersion = "(最新版本: " + latestVersion + ")";
+        }
         Console.log();
         Console.log("欢迎使用哔哩轻小说下载器！");
         Console.log("作者: {}", "Sparks");
-        Console.log("当前版本: {}", VERSION);
+        Console.log("当前版本: {} {}", VERSION, latestVersion);
         Console.log("如遇报错请先查看能否正常访问 https://www.linovelib.com");
         Console.log("否则请至开源地址携带报错信息进行反馈: {}", GIT_URL);
         Console.log();
@@ -147,6 +152,15 @@ public class Main {
             Console.log("EPUB文件保存地址: {}\n", destDir);
         } else {
             Console.log("打包：{} 失败\n", FileUtil.getPrefix(dest));
+        }
+    }
+
+    private static String getLatestVersion() {
+        try {
+            String url = GIT_URL + "/raw/master/version";
+            return HttpUtil.get(url, 1000);
+        } catch (Exception e) {
+            return null;
         }
     }
 }
