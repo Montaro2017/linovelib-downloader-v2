@@ -1,12 +1,14 @@
 package cn.montaro.linovelib.common.util;
 
 import cn.hutool.core.thread.ThreadUtil;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.function.Supplier;
 
+@Slf4j
 public class RetryUtil {
 
-    public static final Integer DEFAULT_RETRY = 3;
+    public static final Integer DEFAULT_RETRY = 5;
 
     public static final Integer DEFAULT_DELAY = 0;
 
@@ -23,13 +25,14 @@ public class RetryUtil {
         do {
             try {
                 return supplier.get();
-            } catch (Throwable ignored) {
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
                 if (delay > 0) {
                     ThreadUtil.safeSleep(delay);
                 }
             }
         } while (tryTimes++ < retry);
-        return null;
+        throw new RuntimeException("Retry Exception: React max retry timers " + retry);
     }
 
     public static <T> T retry(Supplier<T> supplier) {
