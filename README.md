@@ -2,6 +2,13 @@
 
 [Gitee](https://gitee.com/Montaro2017/linovelib-downloader-v2) | [Github](https://github.com/Montaro2017/linovelib-downloader-v2)
 
+
+## Dart语言版
+
+**Dart语言版已发布，相比Java版打包速度预计提升10倍以上，同时不需要安装任何环境即可直接运行，快来看看吧！**
+
+[bili_novel_packer](https://gitee.com/Montaro2017/bili_novel_packer)
+
 ## 介绍
 
 本项目用于从[哔哩轻小说](https://www.linovelib.com)网站下载小说并打包成EPUB
