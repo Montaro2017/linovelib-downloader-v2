@@ -1,6 +1,7 @@
 package cn.montaro.linovelib.epub.resource;
 
 import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.montaro.linovelib.epub.constant.EpubConstant;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -69,6 +70,7 @@ public class OPFResource extends EpubResource {
     }
 
     public void addManifest(String id, String href, String mediaType) {
+        href = StrUtil.replaceChars(href, "\\", "/");
         Element item = doc.createElement("item");
         item.attr("id", id);
         item.attr("href", href);
